@@ -1,0 +1,1181 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบทำเนียบเบอร์โทรศัพท์ - สำนักบริหารพื้นที่อนุรักษ์ที่ 11</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        forest: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            200: '#bbf7d0',
+                            600: '#16a34a',
+                            700: '#15803d',
+                            800: '#166534',
+                            900: '#14532d',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts (Sarabun & Prompt) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Prompt', 'Sarabun', sans-serif;
+            background-color: #f8fafc;
+        }
+        .font-sarabun {
+            font-family: 'Sarabun', sans-serif;
+        }
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</head>
+<body class="text-slate-800 antialiased min-h-screen flex flex-col bg-slate-100">
+
+    <header class="bg-gradient-to-r from-forest-900 via-forest-800 to-emerald-900 text-white shadow-xl sticky top-0 z-30 border-b border-emerald-600/40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-col sm:flex-row justify-between items-center gap-3">
+            <div class="flex items-center space-x-3.5">
+                <div class="bg-white/15 p-3 rounded-2xl border border-white/20 flex items-center justify-center text-emerald-300 shadow-inner flex-shrink-0">
+                    <i class="fa-solid fa-phone-volume text-2xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-lg sm:text-xl font-bold tracking-wide flex items-center gap-2">
+                        <span>ทำเนียบผู้บริหารและหัวหน้าหน่วยงานภาคสนาม</span>
+                    </h1>
+                    <p class="text-xs text-emerald-200 font-sarabun">สำนักบริหารพื้นที่อนุรักษ์ที่ 11 (พิษณุโลก) กรมอุทยานแห่งชาติ สัตว์ป่า และพันธุ์พืช</p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-2 flex-wrap sm:flex-nowrap justify-end">
+                <button onclick="openManageCategoriesModal()" class="bg-amber-500 hover:bg-amber-600 active:bg-amber-700 text-white text-xs sm:text-sm font-medium px-3.5 py-2.5 rounded-xl shadow-lg transition-all duration-200 flex items-center gap-2 border border-amber-400/30" title="ตั้งค่าและจัดการรายชื่อหมวดหมู่ส่วนงาน">
+                    <i class="fa-solid fa-sliders"></i>
+                    <span>จัดการส่วนงาน</span>
+                </button>
+                <button onclick="openAddModal()" class="bg-emerald-500 hover:bg-emerald-600 active:bg-emerald-700 text-white text-xs sm:text-sm font-medium px-3.5 py-2.5 rounded-xl shadow-lg transition-all duration-200 flex items-center gap-2 border border-emerald-400/30">
+                    <i class="fa-solid fa-user-plus"></i>
+                    <span>เพิ่มข้อมูลใหม่</span>
+                </button>
+                <button onclick="openPdfExportModal()" class="bg-rose-600 hover:bg-rose-700 active:bg-rose-800 text-white text-xs sm:text-sm font-medium px-3.5 py-2.5 rounded-xl shadow-lg transition-all duration-200 flex items-center gap-2 border border-rose-400/30">
+                    <i class="fa-solid fa-file-pdf"></i>
+                    <span>ส่งออก PDF / พิมพ์</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-grow w-full">
+
+        <div id="executiveHighlight" class="mb-6 bg-gradient-to-r from-emerald-900 via-forest-900 to-slate-900 text-white rounded-2xl p-5 shadow-lg border border-emerald-600/40 flex flex-col sm:flex-row justify-between items-center gap-4 relative overflow-hidden">
+            <div class="absolute -right-10 -bottom-10 text-emerald-800/20 text-9xl pointer-events-none">
+                <i class="fa-solid fa-shield-halved"></i>
+            </div>
+            <div class="flex items-center space-x-4 z-10">
+                <div class="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center text-emerald-300 text-2xl border border-white/20 flex-shrink-0 shadow-inner">
+                    <i class="fa-solid fa-user-shield"></i>
+                </div>
+                <div>
+                    <h2 class="text-lg font-bold flex items-center gap-2 text-white">
+                        <span>ผู้บริหารหลัก สบอ.11 (พิษณุโลก)</span>
+                        <span class="text-[10px] bg-amber-400/20 text-amber-300 border border-amber-400/40 px-2 py-0.5 rounded-full font-normal">โหมดหน้าหลัก</span>
+                    </h2>
+                    <p class="text-xs text-emerald-200/90 font-sarabun mt-0.5">แสดงผู้อำนวยการสำนักบริหารพื้นที่อนุรักษ์ที่ 11 และผู้อำนวยการส่วนในสังกัด</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2 z-10">
+                <span class="text-xs bg-emerald-800/90 text-emerald-100 px-4 py-2 rounded-xl border border-emerald-500/40 font-sarabun shadow-sm flex items-center gap-2 font-medium" id="executiveCountBadge">
+                    <i class="fa-solid fa-users text-emerald-300"></i>
+                    <span>ผู้บริหารหลัก: 0 ท่าน</span>
+                </span>
+            </div>
+        </div>
+
+        <section class="bg-white rounded-2xl shadow-md border border-slate-200/90 p-4 sm:p-5 mb-6 transition">
+            
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-4 border-b border-slate-100 pb-3 gap-2">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-9 h-9 rounded-xl bg-emerald-600 text-white flex items-center justify-center border border-emerald-500 shadow-md shadow-emerald-600/20">
+                        <i class="fa-solid fa-layer-group text-base"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xs sm:text-sm font-bold uppercase tracking-wider text-slate-800 flex items-center gap-2">
+                            <span>หมวดหมู่ส่วนงาน / หน่วยงานสังกัด</span>
+                            <span class="text-[10px] normal-case bg-emerald-100 text-emerald-800 font-semibold px-2 py-0.5 rounded-full border border-emerald-200">สบอ.11</span>
+                        </h3>
+                        <p class="text-[11px] text-slate-500 font-sarabun">คลิกเลือกหมวดหมู่เพื่อกรองรายชื่อ หรือกดปุ่ม "จัดการส่วนงาน" เพื่อเพิ่ม/แก้ไขชื่อส่วนงาน</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="text-xs font-sarabun font-semibold text-emerald-800 bg-emerald-50/90 px-3 py-1.5 rounded-xl border border-emerald-200 shadow-xs flex items-center gap-1.5" id="tabStatusIndicator">
+                        <i class="fa-solid fa-filter text-emerald-600 text-xs"></i>
+                        <span>หมวดหมู่ปัจจุบัน: 1. ผอ.สำนัก/ผอ.ส่วน</span>
+                    </span>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-2.5 text-xs font-sarabun" id="categoryTabContainer">
+                <!-- Rendered Dynamically -->
+            </div>
+
+            <div class="mt-4 pt-3.5 border-t border-slate-100 grid grid-cols-1 md:grid-cols-12 gap-3 items-center">
+                <div class="md:col-span-9 relative">
+                    <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </div>
+                    <input type="text" id="searchInput" oninput="renderTable()" placeholder="ค้นหาด้วย ชื่อ - นามสกุล, ตำแหน่ง, ชื่อหน่วยงาน หรือเบอร์โทรศัพท์..." 
+                           class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:bg-white text-sm transition font-sarabun">
+                </div>
+
+                <div class="md:col-span-3 flex justify-end items-center gap-2">
+                    <button onclick="resetDataConfirmation()" title="รีเซ็ตกลับเป็นข้อมูลเริ่มต้น" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-600 px-3 py-2.5 rounded-xl transition border border-slate-200 flex items-center gap-1.5 w-full md:w-auto justify-center font-sarabun font-medium">
+                        <i class="fa-solid fa-rotate-left text-slate-500"></i>
+                        <span>คืนค่าเริ่มต้น</span>
+                    </button>
+                    <button onclick="exportDataJSON()" title="สำรองข้อมูล JSON" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-600 px-3 py-2.5 rounded-xl transition border border-slate-200 flex items-center justify-center">
+                        <i class="fa-solid fa-download text-slate-500"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="mt-3 flex flex-wrap justify-between items-center text-xs text-slate-500 font-sarabun">
+                <span id="recordCountText" class="font-medium text-slate-700">กำลังโหลดข้อมูล...</span>
+                <span class="text-slate-400">สำนักบริหารพื้นที่อนุรักษ์ที่ 11 (พิษณุโลก)</span>
+            </div>
+        </section>
+
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200/80 overflow-hidden" id="directoryContent">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse font-sarabun">
+                    <thead>
+                        <tr class="bg-slate-50/80 text-slate-700 uppercase text-xs tracking-wider border-b border-slate-200">
+                            <th class="py-3.5 px-4 font-bold text-center w-12">ลำดับ</th>
+                            <th class="py-3.5 px-4 font-bold">ชื่อหน่วยงาน</th>
+                            <th class="py-3.5 px-4 font-bold">ชื่อ - นามสกุล</th>
+                            <th class="py-3.5 px-4 font-bold">ตำแหน่ง</th>
+                            <th class="py-3.5 px-4 font-bold">เบอร์โทรศัพท์มือถือ</th>
+                            <th class="py-3.5 px-4 font-bold text-center w-24">จัดการ</th>
+                        </tr>
+                    </thead>
+                    <tbody id="directoryTableBody" class="divide-y divide-slate-100 text-sm">
+                        <!-- Dynamic Rows -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div id="emptyState" class="hidden py-14 text-center">
+                <div class="w-16 h-16 bg-slate-100 rounded-2xl flex items-center justify-center mx-auto text-slate-400 text-2xl mb-3 border border-slate-200">
+                    <i class="fa-regular fa-folder-open"></i>
+                </div>
+                <h3 class="text-slate-700 font-bold text-base">ไม่พบข้อมูลในหมวดหมู่นี้</h3>
+                <p class="text-slate-400 text-xs mt-1 font-sarabun">ลองเปลี่ยนหมวดหมู่ ค้นหาคำอื่น หรือกดปุ่มเพิ่มข้อมูลใหม่</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Record Modal -->
+    <div id="recordModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden border border-slate-100 transition-all transform scale-100">
+            <div class="bg-gradient-to-r from-forest-800 to-emerald-900 text-white px-6 py-4 flex justify-between items-center">
+                <h3 id="modalTitle" class="text-base font-bold flex items-center gap-2">
+                    <i class="fa-solid fa-user-plus text-emerald-300"></i>
+                    <span>เพิ่มรายชื่อทำเนียบใหม่</span>
+                </h3>
+                <button onclick="closeModal()" class="text-white/80 hover:text-white text-xl leading-none font-bold focus:outline-none">&times;</button>
+            </div>
+
+            <form id="recordForm" onsubmit="handleSaveRecord(event)" class="p-6 space-y-4 font-sarabun">
+                <input type="hidden" id="formRecordId">
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">ชื่อ - นามสกุล <span class="text-rose-500">*</span></label>
+                    <input type="text" id="inputName" required placeholder="เช่น นายสมชาย ใจดี" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:bg-white">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">ตำแหน่งเฉพาะประจำตัว (ตำแหน่งในสายงาน) <span class="text-rose-500">*</span></label>
+                    <input type="text" id="inputCivilPosition" required placeholder="เช่น นักวิชาการป่าไม้ชำนาญการพิเศษ / เจ้าพนักงานป่าไม้ชำนาญงาน" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:bg-white">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">ตำแหน่งบริหารงาน / ทำหน้าที่ <span class="text-rose-500">*</span></label>
+                    <input type="text" id="inputPosition" required placeholder="เช่น ผู้อำนวยการส่วนอำนวยการ / หัวหน้าอุทยานแห่งชาติ" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:bg-white">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">หน่วยงาน / สังกัด <span class="text-rose-500">*</span></label>
+                    <input type="text" id="inputAgency" required placeholder="เช่น ส่วนอำนวยการ / สำนักบริหารพื้นที่อนุรักษ์ที่ 11" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:bg-white">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">หมวดหมู่กลุ่มส่วนงาน <span class="text-rose-500">*</span></label>
+                    <select id="inputCategory" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:bg-white">
+                        <!-- Rendered Dynamically -->
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">เบอร์โทรศัพท์มือถือ <span class="text-rose-500">*</span></label>
+                    <input type="text" id="inputPhone" required placeholder="08X-XXX-XXXX" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:bg-white font-mono">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">หมายเหตุ (ถ้ามี)</label>
+                    <input type="text" id="inputNote" placeholder="รายละเอียดเพิ่มเติม" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:bg-white">
+                </div>
+
+                <div class="flex justify-end gap-2 pt-3 border-t border-slate-100">
+                    <button type="button" onclick="closeModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-medium rounded-xl transition">ยกเลิก</button>
+                    <button type="submit" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-medium rounded-xl shadow-md transition">บันทึกข้อมูล</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Category Manager Modal -->
+    <div id="categoryManageModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full overflow-hidden border border-slate-100">
+            <div class="bg-gradient-to-r from-amber-600 to-amber-700 text-white px-6 py-4 flex justify-between items-center">
+                <h3 class="text-base font-bold flex items-center gap-2">
+                    <i class="fa-solid fa-sliders text-amber-200"></i>
+                    <span>จัดการรายการส่วนงาน / หมวดหมู่</span>
+                </h3>
+                <button onclick="closeCategoryModal()" class="text-white/80 hover:text-white text-xl leading-none font-bold focus:outline-none">&times;</button>
+            </div>
+
+            <div class="p-6 font-sarabun space-y-4">
+                <p class="text-xs text-slate-500">สามารถเพิ่ม เปลี่ยนชื่อ หรือลบรายการส่วนงานในอนาคตได้ ข้อมูลทำเนียบรายชื่อจะปรับตามชื่อส่วนงานให้อัตโนมัติ</p>
+
+                <form onsubmit="handleAddCategory(event)" class="flex gap-2 items-center bg-slate-50 p-3 rounded-xl border border-slate-200">
+                    <input type="text" id="newCategoryName" required placeholder="ชื่อส่วนงานใหม่..." class="flex-grow px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-amber-500">
+                    <button type="submit" class="bg-amber-600 hover:bg-amber-700 text-white text-xs font-medium px-4 py-2 rounded-lg transition flex items-center gap-1.5 shrink-0">
+                        <i class="fa-solid fa-plus"></i>
+                        <span>เพิ่มส่วนงาน</span>
+                    </button>
+                </form>
+
+                <div class="max-h-64 overflow-y-auto border border-slate-200 rounded-xl">
+                    <table class="w-full text-left text-xs">
+                        <thead class="bg-slate-100 text-slate-700 uppercase">
+                            <tr>
+                                <th class="p-3 w-12 text-center">ลำดับ</th>
+                                <th class="p-3">ชื่อส่วนงาน / หมวดหมู่</th>
+                                <th class="p-3 text-center w-28">จัดการ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="categoryManageList" class="divide-y divide-slate-100">
+                            <!-- Dynamic Categories Rows -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="flex justify-end pt-2 border-t border-slate-100">
+                    <button type="button" onclick="closeCategoryModal()" class="px-5 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-medium rounded-xl transition">ปิดหน้าต่าง</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PDF/Print Export Modal -->
+    <div id="pdfExportModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 border border-slate-100 font-sarabun">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-base font-bold text-slate-800 flex items-center gap-2">
+                    <i class="fa-solid fa-file-pdf text-rose-600"></i>
+                    <span>ส่งออกทำเนียบเบอร์โทรศัพท์เป็น PDF</span>
+                </h3>
+                <button onclick="closePdfModal()" class="text-slate-400 hover:text-slate-600 text-lg font-bold">&times;</button>
+            </div>
+
+            <p class="text-xs text-slate-500 mb-4">ระบบจะจัดรูปแบบตารางกระดาษแนวนอน (A4 Landscape) ฟอนต์สารบรรณแบบปกติ <b>ในส่วน ผอ.สำนัก/ผอ.ส่วน จะถูกจัดให้อยู่ใน 1 แผ่น A4 พอดี</b></p>
+
+            <div class="mb-5">
+                <label class="block text-xs font-semibold text-slate-700 mb-1.5">เลือกหมวดหมู่ที่ต้องการส่งออก:</label>
+                <select id="pdfCategorySelect" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-rose-500">
+                    <!-- Dynamic Options -->
+                </select>
+            </div>
+
+            <div class="flex justify-end gap-2">
+                <button onclick="closePdfModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-medium rounded-xl transition">ยกเลิก</button>
+                <button onclick="processPrintDownload()" class="px-5 py-2 bg-rose-600 hover:bg-rose-700 text-white text-xs font-medium rounded-xl shadow-md transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-print"></i>
+                    <span>พิมพ์ / บันทึก PDF</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirm Modal -->
+    <div id="confirmModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-sm w-full p-6 border border-slate-100 text-center font-sarabun">
+            <div class="w-12 h-12 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center mx-auto text-xl mb-3">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+            <h3 class="text-base font-bold text-slate-800 mb-1" id="confirmTitle">ยืนยันการทำรายการ</h3>
+            <p class="text-xs text-slate-500 mb-5" id="confirmMessage">คุณต้องการดำเนินการนี้ใช่หรือไม่?</p>
+            <div class="flex justify-center gap-2">
+                <button onclick="closeConfirmModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-medium rounded-xl transition w-24">ยกเลิก</button>
+                <button id="confirmBtnAction" class="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white text-xs font-medium rounded-xl transition w-24 shadow-md">ยืนยัน</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toastContainer" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2"></div>
+
+    <script>
+        const defaultCategories = [
+            { id: 'MAIN_EXEC', name: '1. ผอ.สำนัก/ผอ.ส่วน', icon: 'fa-crown', isSystem: true },
+            { id: 'ส่วนอำนวยการ', name: '2. ส่วนอำนวยการ', icon: 'fa-folder', isSystem: false },
+            { id: 'ส่วนอนุรักษ์และป้องกันทรัพยากร', name: '3. ส่วนอนุรักษ์และป้องกันทรัพยากร', icon: 'fa-folder', isSystem: false },
+            { id: 'ส่วนควบคุมและปฏิบัติการไฟป่า', name: '4. ส่วนควบคุมและปฏิบัติการไฟป่า', icon: 'fa-folder', isSystem: false },
+            { id: 'ส่วนจัดการที่ดินและชุมชนในพื้นที่ป่าอนุรักษ์', name: '5. ส่วนจัดการที่ดินและชุมชนในพื้นที่ป่าอนุรักษ์', icon: 'fa-folder', isSystem: false },
+            { id: 'ส่วนอุทยานแห่งชาติ', name: '6. ส่วนอุทยานแห่งชาติ', icon: 'fa-folder', isSystem: false },
+            { id: 'ส่วนอนุรักษ์สัตว์ป่า', name: '7. ส่วนอนุรักษ์สัตว์ป่า', icon: 'fa-folder', isSystem: false },
+            { id: 'ส่วนจัดการต้นน้ำและพัฒนาชุมชนในพื้นที่ป่าอนุรักษ์', name: '8. ส่วนจัดการต้นน้ำและพัฒนาชุมชนในพื้นที่ป่าอนุรักษ์', icon: 'fa-folder', isSystem: false },
+            { id: 'ส่วนประสานโครงการพระราชดำริและกิจการพิเศษ', name: '9. ส่วนประสานโครงการพระราชดำริและกิจการพิเศษ', icon: 'fa-folder', isSystem: false },
+            { id: 'ส่วนประสานความร่วมมือด้านทรัพยากรป่าไม้และสัตว์ป่า', name: '10. ส่วนประสานความร่วมมือด้านทรัพยากรป่าไม้และสัตว์ป่า', icon: 'fa-folder', isSystem: false },
+            { id: 'ส่วนวิชาการ', name: '11. ส่วนวิชาการ', icon: 'fa-folder', isSystem: false },
+            { id: 'ส่วนกฎหมาย', name: '12. ส่วนกฎหมาย', icon: 'fa-folder', isSystem: false }
+        ];
+
+        const defaultDirectoryData = [
+            {
+                id: 'rec_001',
+                name: 'นายกฤษดา มหานคร',
+                civilPosition: 'นักวิชาการป่าไม้เชี่ยวชาญ',
+                position: 'ผู้อำนวยการสำนักบริหารพื้นที่อนุรักษ์ที่ 11',
+                agency: 'สำนักบริหารพื้นที่อนุรักษ์ที่ 11 (พิษณุโลก)',
+                category: 'MAIN_EXEC',
+                phone: '081-999-8888',
+                note: 'ผู้บริหารสูงสุด'
+            },
+            {
+                id: 'rec_002',
+                name: 'นายสมชาย รักสงบ',
+                civilPosition: 'นักวิชาการป่าไม้ชำนาญการพิเศษ',
+                position: 'ผู้อำนวยการส่วนอำนวยการ',
+                agency: 'ส่วนอำนวยการ',
+                category: 'ส่วนอำนวยการ',
+                phone: '089-123-4567',
+                note: 'ผอ.ส่วน'
+            },
+            {
+                id: 'rec_003',
+                name: 'นายประเสริฐ รักษ์ป่า',
+                civilPosition: 'นักวิชาการป่าไม้ชำนาญการพิเศษ',
+                position: 'ผู้อำนวยการส่วนอนุรักษ์และป้องกันทรัพยากร',
+                agency: 'ส่วนอนุรักษ์และป้องกันทรัพยากร',
+                category: 'ส่วนอนุรักษ์และป้องกันทรัพยากร',
+                phone: '081-234-5678',
+                note: 'ผอ.ส่วน'
+            },
+            {
+                id: 'rec_004',
+                name: 'นายสมศักดิ์ สู้ไฟป่า',
+                civilPosition: 'เจ้าพนักงานป่าไม้ชำนาญงาน',
+                position: 'ผู้อำนวยการส่วนควบคุมและปฏิบัติการไฟป่า',
+                agency: 'ส่วนควบคุมและปฏิบัติการไฟป่า',
+                category: 'ส่วนควบคุมและปฏิบัติการไฟป่า',
+                phone: '086-345-6789',
+                note: 'ผอ.ส่วน'
+            },
+            {
+                id: 'rec_005',
+                name: 'นายวิชัย จัดการที่ดิน',
+                civilPosition: 'นักวิชาการป่าไม้ชำนาญการพิเศษ',
+                position: 'ผู้อำนวยการส่วนจัดการที่ดินและชุมชนในพื้นที่ป่าอนุรักษ์',
+                agency: 'ส่วนจัดการที่ดินและชุมชนในพื้นที่ป่าอนุรักษ์',
+                category: 'ส่วนจัดการที่ดินและชุมชนในพื้นที่ป่าอนุรักษ์',
+                phone: '087-456-7890',
+                note: 'ผอ.ส่วน'
+            },
+            {
+                id: 'rec_006',
+                name: 'นายธนกฤต รักษ์พงสิงห์',
+                civilPosition: 'นักวิชาการป่าไม้ชำนาญการพิเศษ',
+                position: 'ผู้อำนวยการส่วนอุทยานแห่งชาติ',
+                agency: 'ส่วนอุทยานแห่งชาติ',
+                category: 'ส่วนอุทยานแห่งชาติ',
+                phone: '088-567-8901',
+                note: 'ผอ.ส่วน'
+            },
+            {
+                id: 'rec_007',
+                name: 'สพ.ญ.ปานดวงใจ คุ้มภัย',
+                civilPosition: 'นายสัตวแพทย์ชำนาญการพิเศษ',
+                position: 'ผู้อำนวยการส่วนอนุรักษ์สัตว์ป่า',
+                agency: 'ส่วนอนุรักษ์สัตว์ป่า',
+                category: 'ส่วนอนุรักษ์สัตว์ป่า',
+                phone: '089-678-9012',
+                note: 'ผอ.ส่วน'
+            },
+            {
+                id: 'rec_008',
+                name: 'นายชลธาร สายน้ำฉ่ำ',
+                civilPosition: 'นักวิชาการป่าไม้ชำนาญการพิเศษ',
+                position: 'ผู้อำนวยการส่วนจัดการต้นน้ำและพัฒนาชุมชนในพื้นที่ป่าอนุรักษ์',
+                agency: 'ส่วนจัดการต้นน้ำและพัฒนาชุมชนในพื้นที่ป่าอนุรักษ์',
+                category: 'ส่วนจัดการต้นน้ำและพัฒนาชุมชนในพื้นที่ป่าอนุรักษ์',
+                phone: '081-789-0123',
+                note: 'ผอ.ส่วน'
+            },
+            {
+                id: 'rec_009',
+                name: 'นายภักดี เทิดทูน',
+                civilPosition: 'นักวิชาการป่าไม้ชำนาญการพิเศษ',
+                position: 'ผู้อำนวยการส่วนประสานโครงการพระราชดำริและกิจการพิเศษ',
+                agency: 'ส่วนประสานโครงการพระราชดำริและกิจการพิเศษ',
+                category: 'ส่วนประสานโครงการพระราชดำริและกิจการพิเศษ',
+                phone: '082-890-1234',
+                note: 'ผอ.ส่วน'
+            },
+            {
+                id: 'rec_010',
+                name: 'นายปรีชา ร่วมมือป่าไม้',
+                civilPosition: 'เจ้าพนักงานป่าไม้ชำนาญงาน',
+                position: 'ผู้อำนวยการส่วนประสานความร่วมมือด้านทรัพยากรป่าไม้และสัตว์ป่า',
+                agency: 'ส่วนประสานความร่วมมือด้านทรัพยากรป่าไม้และสัตว์ป่า',
+                category: 'ส่วนประสานความร่วมมือด้านทรัพยากรป่าไม้และสัตว์ป่า',
+                phone: '083-901-2345',
+                note: 'ผอ.ส่วน'
+            },
+            {
+                id: 'rec_011',
+                name: 'ดร.สมชาย วิชาการป่า',
+                civilPosition: 'นักวิชาการป่าไม้ชำนาญการพิเศษ',
+                position: 'ผู้อำนวยการส่วนวิชาการ',
+                agency: 'ส่วนวิชาการ',
+                category: 'ส่วนวิชาการ',
+                phone: '084-012-3456',
+                note: 'ผอ.ส่วน'
+            },
+            {
+                id: 'rec_012',
+                name: 'นายยุติธรรม เที่ยงตรง',
+                civilPosition: 'นิติกรชำนาญการพิเศษ',
+                position: 'ผู้อำนวยการส่วนกฎหมาย',
+                agency: 'ส่วนกฎหมาย',
+                category: 'ส่วนกฎหมาย',
+                phone: '085-123-4567',
+                note: 'ผอ.ส่วน'
+            },
+            {
+                id: 'rec_013',
+                name: 'นายรุ่งโรจน์ อุทยานไทย',
+                civilPosition: 'นักวิชาการป่าไม้ชำนาญการ',
+                position: 'หัวหน้าอุทยานแห่งชาติภูหินร่องกล้า',
+                agency: 'อุทยานแห่งชาติภูหินร่องกล้า',
+                category: 'ส่วนอุทยานแห่งชาติ',
+                phone: '081-111-2233',
+                note: 'หน่วยงานภาคสนาม'
+            },
+            {
+                id: 'rec_014',
+                name: 'นายสมพร คุมไฟป่า',
+                civilPosition: 'เจ้าพนักงานป่าไม้ชำนาญงาน',
+                position: 'หัวหน้าสถานีควบคุมไฟป่าทุ่งสลี่ยม',
+                agency: 'สถานีควบคุมไฟป่าทุ่งสลี่ยม',
+                category: 'ส่วนควบคุมและปฏิบัติการไฟป่า',
+                phone: '082-222-3344',
+                note: 'หน่วยงานภาคสนาม'
+            }
+        ];
+
+        let categoriesList = [];
+        let directoryData = [];
+        let activeCategoryTab = 'MAIN_EXEC';
+        let confirmCallback = null;
+
+        // Initialize App on Window Load
+        window.onload = function() {
+            loadCategories();
+            loadData();
+            renderCategoryTabs();
+            populateCategorySelects();
+            selectCategoryTab('MAIN_EXEC');
+        };
+
+        function loadCategories() {
+            const stored = localStorage.getItem('sabo11_categories_data');
+            if (stored) {
+                try {
+                    categoriesList = JSON.parse(stored);
+                } catch (e) {
+                    categoriesList = [...defaultCategories];
+                }
+            } else {
+                categoriesList = [...defaultCategories];
+                saveCategories();
+            }
+        }
+
+        function saveCategories() {
+            localStorage.setItem('sabo11_categories_data', JSON.stringify(categoriesList));
+        }
+
+        function loadData() {
+            const stored = localStorage.getItem('sabo11_directory_data');
+            if (stored) {
+                try {
+                    directoryData = JSON.parse(stored);
+                } catch (e) {
+                    directoryData = [...defaultDirectoryData];
+                }
+            } else {
+                directoryData = [...defaultDirectoryData];
+                saveData();
+            }
+        }
+
+        function saveData() {
+            localStorage.setItem('sabo11_directory_data', JSON.stringify(directoryData));
+        }
+
+        function renderCategoryTabs() {
+            const container = document.getElementById('categoryTabContainer');
+            if (!container) return;
+            container.innerHTML = '';
+
+            categoriesList.forEach((cat) => {
+                const btn = document.createElement('button');
+                btn.id = `tab-${cat.id}`;
+                btn.onclick = () => selectCategoryTab(cat.id);
+                
+                const isActive = activeCategoryTab === cat.id;
+
+                if (isActive) {
+                    btn.className = `cat-tab group relative px-3.5 py-2.5 rounded-xl border transition-all duration-200 flex items-center justify-between font-semibold bg-gradient-to-r from-forest-800 via-emerald-800 to-forest-900 text-white border-forest-700 shadow-lg shadow-emerald-900/20 ring-2 ring-emerald-500/50 scale-[1.01]`;
+                } else {
+                    btn.className = `cat-tab group relative px-3.5 py-2.5 rounded-xl border transition-all duration-200 flex items-center justify-between font-medium bg-slate-50/80 hover:bg-emerald-50/80 text-slate-700 border-slate-200/90 hover:border-emerald-300 hover:text-emerald-900 hover:shadow-md hover:-translate-y-0.5`;
+                }
+                
+                // Set all category icons to amber/yellow styling like the main executive
+                const iconClass = cat.id === 'MAIN_EXEC' ? 'fa-crown text-amber-400' : 'fa-folder-closed text-amber-500 group-hover:text-amber-600';
+                const activeIconClass = cat.id === 'MAIN_EXEC' ? 'fa-crown text-amber-300' : 'fa-folder-open text-amber-300';
+
+                btn.innerHTML = `
+                    <div class="flex items-center gap-2.5 truncate min-w-0 pr-1">
+                        <div class="w-6 h-6 rounded-lg ${isActive ? 'bg-white/15' : 'bg-amber-100/70 group-hover:bg-amber-200/70'} flex items-center justify-center shrink-0 transition-colors">
+                            <i class="fa-solid ${isActive ? activeIconClass : iconClass} text-xs"></i>
+                        </div>
+                        <span class="truncate">${escapeHtml(cat.name)}</span>
+                    </div>
+                `;
+                container.appendChild(btn);
+            });
+        }
+
+        function populateCategorySelects() {
+            const inputSel = document.getElementById('inputCategory');
+            const pdfSel = document.getElementById('pdfCategorySelect');
+            
+            if (inputSel) {
+                inputSel.innerHTML = '';
+                categoriesList.forEach(c => {
+                    const opt = document.createElement('option');
+                    opt.value = c.id;
+                    opt.textContent = c.name;
+                    inputSel.appendChild(opt);
+                });
+            }
+
+            if (pdfSel) {
+                pdfSel.innerHTML = '';
+                categoriesList.forEach(c => {
+                    const opt = document.createElement('option');
+                    opt.value = c.id;
+                    opt.textContent = c.name;
+                    pdfSel.appendChild(opt);
+                });
+            }
+        }
+
+        function selectCategoryTab(catId) {
+            activeCategoryTab = catId;
+            renderCategoryTabs();
+
+            const statusText = document.getElementById('tabStatusIndicator');
+            if (statusText) {
+                const found = categoriesList.find(c => c.id === catId);
+                const label = found ? found.name : catId;
+                statusText.innerText = `หมวดหมู่ปัจจุบัน: ${label}`;
+            }
+
+            const execBanner = document.getElementById('executiveHighlight');
+            if (execBanner) {
+                if (catId === 'MAIN_EXEC') {
+                    execBanner.classList.remove('hidden');
+                } else {
+                    execBanner.classList.add('hidden');
+                }
+            }
+
+            renderTable();
+        }
+
+        function isMainExecutive(item) {
+            if (!item) return false;
+            const pos = (item.position || '').toLowerCase();
+            const cat = item.category || '';
+            return cat === 'MAIN_EXEC' || pos.includes('ผู้อำนวยการสำนัก') || pos.includes('ผู้อำนวยการส่วน');
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('directoryTableBody');
+            const searchInput = document.getElementById('searchInput');
+            const search = searchInput ? searchInput.value.toLowerCase().trim() : '';
+            const emptyState = document.getElementById('emptyState');
+
+            if (!tbody) return;
+            tbody.innerHTML = '';
+
+            const mainExecsList = directoryData.filter(item => isMainExecutive(item));
+            const badge = document.getElementById('executiveCountBadge');
+            if (badge) badge.innerText = `ผู้บริหารหลัก: ${mainExecsList.length} ท่าน`;
+
+            const filtered = directoryData.filter(item => {
+                const matchesSearch = 
+                    (item.name || '').toLowerCase().includes(search) ||
+                    (item.civilPosition || '').toLowerCase().includes(search) ||
+                    (item.position || '').toLowerCase().includes(search) ||
+                    (item.agency || '').toLowerCase().includes(search) ||
+                    (item.phone || '').toLowerCase().includes(search);
+                
+                let matchesCategory = true;
+                if (activeCategoryTab === 'MAIN_EXEC') {
+                    matchesCategory = isMainExecutive(item);
+                } else {
+                    const activeCatObj = categoriesList.find(c => c.id === activeCategoryTab);
+                    const targetCategoryName = activeCatObj ? activeCatObj.name : activeCategoryTab;
+
+                    const matchesDirect = (item.category === activeCategoryTab) || (item.category === targetCategoryName);
+                    const matchesAgency = (item.agency || '').includes(activeCategoryTab) || (item.agency || '').includes(targetCategoryName);
+                    
+                    matchesCategory = matchesDirect || matchesAgency;
+                }
+
+                return matchesSearch && matchesCategory;
+            });
+
+            const foundCat = categoriesList.find(c => c.id === activeCategoryTab);
+            let catLabelText = foundCat ? foundCat.name : activeCategoryTab;
+
+            const recordCountText = document.getElementById('recordCountText');
+            if (recordCountText) {
+                recordCountText.innerText = `กำลังแสดง: ${catLabelText} (${filtered.length} จากทั้งหมด ${directoryData.length} รายการ)`;
+            }
+
+            if (filtered.length === 0) {
+                if (emptyState) emptyState.classList.remove('hidden');
+                return;
+            } else {
+                if (emptyState) emptyState.classList.add('hidden');
+            }
+
+            filtered.forEach((item, index) => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50 transition border-b border-slate-100";
+
+                tr.innerHTML = `
+                    <td class="py-3.5 px-4 text-center font-medium text-slate-500">${index + 1}</td>
+                    <td class="py-3.5 px-4">
+                        <div class="font-semibold text-slate-900">${escapeHtml(item.position)}</div>
+                    </td>
+                    <td class="py-3.5 px-4">
+                        <div class="flex items-center gap-1.5 font-semibold text-slate-900">
+                            <span>${escapeHtml(item.name)}</span>
+                            ${isMainExecutive(item) ? '<i class="fa-solid fa-circle-check text-amber-500 text-xs" title="ผู้บริหารหลัก"></i>' : ''}
+                        </div>
+                    </td>
+                    <td class="py-3.5 px-4 text-slate-700">
+                        <div class="font-medium text-slate-800">${escapeHtml(item.civilPosition || '-')}</div>
+                        ${item.note ? `<div class="text-xs text-slate-400 italic mt-0.5">${escapeHtml(item.note)}</div>` : ''}
+                    </td>
+                    <td class="py-3.5 px-4 font-mono font-medium text-slate-800 whitespace-nowrap">
+                        <span class="flex items-center gap-1.5">
+                            <i class="fa-solid fa-phone text-xs text-emerald-600"></i>
+                            <span>${escapeHtml(item.phone)}</span>
+                        </span>
+                    </td>
+                    <td class="py-3.5 px-4 text-center whitespace-nowrap">
+                        <div class="flex items-center justify-center space-x-2">
+                            <button onclick="editRecord('${item.id}')" title="แก้ไข" class="p-1.5 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded transition">
+                                <i class="fa-solid fa-pen-to-square"></i>
+                            </button>
+                            <button onclick="deleteRecord('${item.id}')" title="ลบ" class="p-1.5 text-rose-600 hover:text-rose-800 hover:bg-rose-50 rounded transition">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function processPrintDownload() {
+            const selectedCategory = document.getElementById('pdfCategorySelect').value;
+            closePdfModal();
+
+            const pdfData = directoryData.filter(item => {
+                if (selectedCategory === 'MAIN_EXEC') return isMainExecutive(item);
+                const activeCatObj = categoriesList.find(c => c.id === selectedCategory);
+                const targetCategoryName = activeCatObj ? activeCatObj.name : selectedCategory;
+                return (item.category === selectedCategory) || (item.category === targetCategoryName) || (item.agency || '').includes(selectedCategory);
+            });
+
+            if (pdfData.length === 0) {
+                showToast('ไม่พบข้อมูลในหมวดหมู่ที่เลือกส่งออก', 'error');
+                return;
+            }
+
+            const options = { year: 'numeric', month: 'long', day: 'numeric', calendar: 'buddhist' };
+            const todayStr = new Date().toLocaleDateString('th-TH', options);
+            const foundCat = categoriesList.find(c => c.id === selectedCategory);
+            let categoryTitle = foundCat ? foundCat.name : selectedCategory;
+
+            // Check if rendering the Executive list to strictly fit onto 1 sheet of A4 Landscape
+            const isExecutiveCategory = (selectedCategory === 'MAIN_EXEC');
+            
+            // Apply un-bolded text formatting for body data cell elements
+            let rowsHtml = '';
+            pdfData.forEach((item, index) => {
+                const rowCellPadding = isExecutiveCategory ? 'padding: 4px 6px;' : 'padding: 6px 8px;';
+                const fontSizeCss = isExecutiveCategory ? 'font-size: 11px;' : 'font-size: 12px;';
+                
+                rowsHtml += `
+                    <tr style="page-break-inside: avoid;">
+                        <td style="text-align: center; font-weight: normal; ${rowCellPadding} border: 1px solid #cbd5e1; ${fontSizeCss}">${index + 1}</td>
+                        <td style="${rowCellPadding} border: 1px solid #cbd5e1; ${fontSizeCss}">
+                            <div style="font-weight: normal; color: #0f172a;">${escapeHtml(item.position)}</div>
+                        </td>
+                        <td style="${rowCellPadding} border: 1px solid #cbd5e1; ${fontSizeCss}">
+                            <div style="font-weight: normal; color: #0f172a;">${escapeHtml(item.name)}</div>
+                        </td>
+                        <td style="${rowCellPadding} border: 1px solid #cbd5e1; ${fontSizeCss}">
+                            <div style="font-weight: normal; color: #334155;">${escapeHtml(item.civilPosition || '-')}</div>
+                            ${item.note ? `<div style="font-size: 10px; color: #64748b; font-style: italic; font-weight: normal;">${escapeHtml(item.note)}</div>` : ''}
+                        </td>
+                        <td style="${rowCellPadding} border: 1px solid #cbd5e1; font-weight: normal; font-family: monospace; white-space: nowrap; color: #166534; ${fontSizeCss}">${escapeHtml(item.phone)}</td>
+                    </tr>
+                `;
+            });
+
+            const printWindow = window.open('', '_blank', 'width=1000,height=800');
+            if (!printWindow) {
+                showToast('เบราว์เซอร์บล็อกป๊อปอัพ กรุณาอนุญาต Popup เพื่อพิมพ์/ส่งออก PDF', 'error');
+                return;
+            }
+
+            // A4 Layout styling: Single-page compact margins for executive section vs standard margins for other sections
+            const printHTML = `
+                <!DOCTYPE html>
+                <html lang="th">
+                <head>
+                    <meta charset="UTF-8">
+                    <title>ทำเนียบเบอร์โทรศัพท์ - ${escapeHtml(categoryTitle)}</title>
+                    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+                    <style>
+                        @page {
+                            size: A4 landscape;
+                            margin: ${isExecutiveCategory ? '6mm 8mm 6mm 8mm' : '10mm 10mm 10mm 10mm'};
+                        }
+                        body {
+                            font-family: 'Sarabun', sans-serif;
+                            margin: 0;
+                            padding: ${isExecutiveCategory ? '5px 10px' : '15px'};
+                            color: #0f172a;
+                            background: #ffffff;
+                            -webkit-print-color-adjust: exact;
+                            print-color-adjust: exact;
+                        }
+                        table {
+                            width: 100%;
+                            border-collapse: collapse;
+                            margin-top: ${isExecutiveCategory ? '8px' : '12px'};
+                            font-size: ${isExecutiveCategory ? '11px' : '12px'};
+                        }
+                        th {
+                            background-color: #166534 !important;
+                            color: #ffffff !important;
+                            padding: ${isExecutiveCategory ? '5px 6px' : '7px 8px'};
+                            border: 1px solid #14532d;
+                            font-weight: 600;
+                            font-size: ${isExecutiveCategory ? '11px' : '12px'};
+                        }
+                        tr:nth-child(even) {
+                            background-color: #f8fafc;
+                        }
+                        /* Body Text Weight Override */
+                        td, td div, td span {
+                            font-weight: normal !important;
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div style="text-align: center; margin-bottom: ${isExecutiveCategory ? '8px' : '12px'}; border-bottom: 2px solid #166534; padding-bottom: ${isExecutiveCategory ? '4px' : '8px'};">
+                        <h2 style="font-size: ${isExecutiveCategory ? '17px' : '19px'}; font-weight: bold; margin: 0; color: #0f172a;">ทำเนียบเบอร์โทรศัพท์ผู้บริหารและหัวหน้าหน่วยงานภาคสนาม</h2>
+                        <h3 style="font-size: ${isExecutiveCategory ? '13px' : '15px'}; font-weight: bold; margin: 3px 0 0 0; color: #166534;">${escapeHtml(categoryTitle)} - สำนักบริหารพื้นที่อนุรักษ์ที่ 11 (พิษณุโลก)</h3>
+                        <div style="display: flex; justify-content: space-between; font-size: ${isExecutiveCategory ? '10px' : '11px'}; color: #475569; margin-top: ${isExecutiveCategory ? '4px' : '8px'}; font-weight: normal;">
+                            <span>ข้อมูล ณ วันที่: ${todayStr}</span>
+                            <span>จำนวนทั้งหมด ${pdfData.length} รายการ</span>
+                        </div>
+                    </div>
+
+                    <table>
+                        <thead>
+                            <tr>
+                                <th style="width: 45px; text-align: center;">ลำดับ</th>
+                                <th style="width: 250px; text-align: left;">ชื่อหน่วยงาน / ตำแหน่งบริหาร</th>
+                                <th style="width: 200px; text-align: left;">ชื่อ - นามสกุล</th>
+                                <th style="text-align: left;">ตำแหน่งสายงานเฉพาะ</th>
+                                <th style="width: 130px; text-align: left;">เบอร์โทรศัพท์มือถือ</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${rowsHtml}
+                        </tbody>
+                    </table>
+
+                    <div style="margin-top: ${isExecutiveCategory ? '10px' : '16px'}; display: flex; justify-content: space-between; font-size: ${isExecutiveCategory ? '10px' : '11px'}; color: #64748b; border-top: 1px solid #cbd5e1; padding-top: 6px; font-weight: normal;">
+                        <span>ระบบทำเนียบเบอร์โทรศัพท์ สบอ.11 (พิษณุโลก)</span>
+                        <span>กรมอุทยานแห่งชาติ สัตว์ป่า และพันธุ์พืช</span>
+                    </div>
+
+                    <script>
+                        window.onload = function() {
+                            setTimeout(function() {
+                                window.print();
+                            }, 500);
+                        };
+                    <\/script>
+                </body>
+                </html>
+            `;
+
+            printWindow.document.open();
+            printWindow.document.write(printHTML);
+            printWindow.document.close();
+            showToast('เปิดหน้าต่างเตรียมพิมพ์ / บันทึก PDF เรียบร้อย', 'success');
+        }
+
+        function handleSaveRecord(event) {
+            if (event) event.preventDefault();
+
+            const recordId = document.getElementById('formRecordId').value;
+            const name = document.getElementById('inputName').value.trim();
+            const civilPosition = document.getElementById('inputCivilPosition').value.trim();
+            const position = document.getElementById('inputPosition').value.trim();
+            const agency = document.getElementById('inputAgency').value.trim();
+            const category = document.getElementById('inputCategory').value;
+            const phone = document.getElementById('inputPhone').value.trim();
+            const note = document.getElementById('inputNote').value.trim();
+
+            if (!name || !position || !phone) {
+                showToast('กรุณากรอกข้อมูลสำคัญให้ครบถ้วน', 'error');
+                return;
+            }
+
+            if (recordId) {
+                const idx = directoryData.findIndex(r => r.id === recordId);
+                if (idx !== -1) {
+                    directoryData[idx] = {
+                        ...directoryData[idx],
+                        name, civilPosition, position, agency, category, phone, note
+                    };
+                    showToast('ปรับปรุงข้อมูลทำเนียบเรียบร้อยแล้ว', 'success');
+                }
+            } else {
+                const newRecord = {
+                    id: 'rec_' + Date.now(),
+                    name, civilPosition, position, agency, category, phone, note
+                };
+                directoryData.unshift(newRecord);
+                showToast('เพิ่มข้อมูลทำเนียบใหม่เรียบร้อยแล้ว', 'success');
+            }
+
+            saveData();
+            closeModal();
+            renderTable();
+        }
+
+        function openAddModal() {
+            document.getElementById('modalTitle').innerText = 'เพิ่มรายชื่อทำเนียบใหม่';
+            document.getElementById('formRecordId').value = '';
+            document.getElementById('recordForm').reset();
+            document.getElementById('inputCategory').value = activeCategoryTab;
+            document.getElementById('recordModal').classList.remove('hidden');
+        }
+
+        function editRecord(id) {
+            const record = directoryData.find(r => r.id === id);
+            if (!record) return;
+
+            document.getElementById('modalTitle').innerText = 'แก้ไขข้อมูลทำเนียบ';
+            document.getElementById('formRecordId').value = record.id;
+            document.getElementById('inputName').value = record.name;
+            document.getElementById('inputCivilPosition').value = record.civilPosition || '';
+            document.getElementById('inputPosition').value = record.position;
+            document.getElementById('inputAgency').value = record.agency;
+            document.getElementById('inputCategory').value = record.category;
+            document.getElementById('inputPhone').value = record.phone;
+            document.getElementById('inputNote').value = record.note || '';
+
+            document.getElementById('recordModal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('recordModal').classList.add('hidden');
+        }
+
+        function openManageCategoriesModal() {
+            renderCategoryManagerTable();
+            document.getElementById('categoryManageModal').classList.remove('hidden');
+        }
+
+        function closeCategoryModal() {
+            document.getElementById('categoryManageModal').classList.add('hidden');
+        }
+
+        function openPdfExportModal() {
+            document.getElementById('pdfCategorySelect').value = activeCategoryTab;
+            document.getElementById('pdfExportModal').classList.remove('hidden');
+        }
+
+        function closePdfModal() {
+            document.getElementById('pdfExportModal').classList.add('hidden');
+        }
+
+        function renderCategoryManagerTable() {
+            const tbody = document.getElementById('categoryManageList');
+            if (!tbody) return;
+            tbody.innerHTML = '';
+
+            categoriesList.forEach((cat, idx) => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50 transition border-b border-slate-100";
+                
+                tr.innerHTML = `
+                    <td class="p-3 text-center text-slate-500 font-medium">${idx + 1}</td>
+                    <td class="p-3 font-medium text-slate-800">
+                        ${cat.isSystem ? `<span class="text-amber-700 font-semibold">${escapeHtml(cat.name)} (หลัก)</span>` : `<span>${escapeHtml(cat.name)}</span>`}
+                    </td>
+                    <td class="p-3 text-center whitespace-nowrap">
+                        <div class="flex items-center justify-center space-x-2">
+                            <button onclick="editCategory('${cat.id}')" class="p-1 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded" title="แก้ไขชื่อ">
+                                <i class="fa-solid fa-pen-to-square"></i>
+                            </button>
+                            ${!cat.isSystem ? `
+                                <button onclick="deleteCategory('${cat.id}')" class="p-1 text-rose-600 hover:text-rose-800 hover:bg-rose-50 rounded" title="ลบ">
+                                    <i class="fa-solid fa-trash-can"></i>
+                                </button>
+                            ` : '<span class="text-slate-300 text-xs">-</span>'}
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function handleAddCategory(e) {
+            if (e) e.preventDefault();
+            const input = document.getElementById('newCategoryName');
+            const name = input ? input.value.trim() : '';
+
+            if (!name) return;
+
+            if (categoriesList.some(c => c.id === name || c.name === name)) {
+                showToast('มีหมวดหมู่ส่วนงานนี้อยู่แล้ว', 'error');
+                return;
+            }
+
+            categoriesList.push({
+                id: name,
+                name: name,
+                icon: 'fa-folder',
+                isSystem: false
+            });
+
+            saveCategories();
+            renderCategoryTabs();
+            populateCategorySelects();
+            renderCategoryManagerTable();
+            if (input) input.value = '';
+            showToast('เพิ่มหมวดหมู่ส่วนงานใหม่เรียบร้อย', 'success');
+        }
+
+        function editCategory(catId) {
+            const cat = categoriesList.find(c => c.id === catId);
+            if (!cat) return;
+
+            const newName = prompt("แก้ไขชื่อหมวดหมู่ส่วนงาน:", cat.name);
+            if (!newName || newName.trim() === '' || newName.trim() === cat.name) return;
+
+            const oldId = cat.id;
+            const updatedName = newName.trim();
+
+            cat.name = updatedName;
+            if (!cat.isSystem) {
+                cat.id = updatedName;
+                directoryData.forEach(item => {
+                    if (item.category === oldId) {
+                        item.category = updatedName;
+                    }
+                });
+                saveData();
+            }
+
+            saveCategories();
+            renderCategoryTabs();
+            populateCategorySelects();
+            renderCategoryManagerTable();
+            renderTable();
+            showToast('ปรับปรุงชื่อส่วนงานเรียบร้อยแล้ว', 'success');
+        }
+
+        function deleteCategory(catId) {
+            const cat = categoriesList.find(c => c.id === catId);
+            if (!cat || cat.isSystem) return;
+
+            showDeleteConfirmModal(`ยืนยันลบหมวดหมู่ "${cat.name}" ?`, () => {
+                categoriesList = categoriesList.filter(c => c.id !== catId);
+                directoryData.forEach(item => {
+                    if (item.category === catId) {
+                        item.category = 'MAIN_EXEC';
+                    }
+                });
+
+                saveCategories();
+                saveData();
+                renderCategoryTabs();
+                populateCategorySelects();
+                renderCategoryManagerTable();
+                selectCategoryTab('MAIN_EXEC');
+                showToast('ลบหมวดหมู่เรียบร้อยแล้ว', 'success');
+            });
+        }
+
+        function deleteRecord(id) {
+            const record = directoryData.find(r => r.id === id);
+            if (!record) return;
+
+            showDeleteConfirmModal(`คุณต้องการลบรายชื่อ "${record.name}" ใช่หรือไม่?`, () => {
+                directoryData = directoryData.filter(r => r.id !== id);
+                saveData();
+                renderTable();
+                showToast('ลบรายการเรียบร้อยแล้ว', 'success');
+            });
+        }
+
+        function showDeleteConfirmModal(message, onConfirm) {
+            document.getElementById('confirmMessage').innerText = message;
+            confirmCallback = onConfirm;
+            
+            const btn = document.getElementById('confirmBtnAction');
+            btn.onclick = function() {
+                if (confirmCallback) confirmCallback();
+                closeConfirmModal();
+            };
+
+            document.getElementById('confirmModal').classList.remove('hidden');
+        }
+
+        function closeConfirmModal() {
+            document.getElementById('confirmModal').classList.add('hidden');
+            confirmCallback = null;
+        }
+
+        function resetDataConfirmation() {
+            showDeleteConfirmModal("รีเซ็ตคืนค่าข้อมูลและส่วนงานเริ่มต้นของ สบอ.11 ทั้งหมด", () => {
+                categoriesList = [...defaultCategories];
+                directoryData = [...defaultDirectoryData];
+                saveCategories();
+                saveData();
+                renderCategoryTabs();
+                populateCategorySelects();
+                selectCategoryTab('MAIN_EXEC');
+                showToast('คืนค่าข้อมูลเริ่มต้นเรียบร้อยแล้ว', 'success');
+            });
+        }
+
+        function exportDataJSON() {
+            const backupPayload = {
+                categories: categoriesList,
+                records: directoryData
+            };
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupPayload, null, 2));
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", `sabo11_directory_backup_${new Date().toISOString().slice(0,10)}.json`);
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            if (!container) return;
+
+            const toast = document.createElement('div');
+            let bg = 'bg-slate-800 text-white';
+            let icon = '<i class="fa-solid fa-circle-info text-blue-400"></i>';
+
+            if (type === 'success') {
+                bg = 'bg-slate-900 text-white border-l-4 border-emerald-500';
+                icon = '<i class="fa-solid fa-circle-check text-emerald-400"></i>';
+            } else if (type === 'error') {
+                bg = 'bg-slate-900 text-white border-l-4 border-rose-500';
+                icon = '<i class="fa-solid fa-triangle-exclamation text-rose-400"></i>';
+            }
+
+            toast.className = `${bg} px-4 py-3 rounded-lg shadow-lg text-sm flex items-center space-x-2 transition-all duration-300 transform translate-y-2 opacity-0 font-sarabun`;
+            toast.innerHTML = `${icon} <span>${escapeHtml(message)}</span>`;
+
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.classList.remove('translate-y-2', 'opacity-0');
+            }, 10);
+
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-2');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
