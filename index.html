@@ -61,6 +61,23 @@
             background-color: #ecfdf5 !important;
             transform: scale(1.002);
         }
+        tr.dragging {
+            opacity: 0.4;
+            background-color: #f1f5f9 !important;
+        }
+        tr.drag-over-top {
+            border-top: 3px solid #10b981 !important;
+        }
+        tr.drag-over-bottom {
+            border-bottom: 3px solid #10b981 !important;
+        }
+        .drag-handle {
+            cursor: grab;
+            user-select: none;
+        }
+        .drag-handle:active {
+            cursor: grabbing;
+        }
     </style>
 </head>
 <body class="text-slate-800 antialiased min-h-screen flex flex-col bg-slate-100 overflow-x-hidden">
@@ -170,6 +187,7 @@
                 <table class="w-full text-left border-collapse font-sarabun min-w-[700px]">
                     <thead>
                         <tr class="bg-slate-50/80 text-slate-700 uppercase text-xs tracking-wider border-b border-slate-200">
+                            <th class="py-3.5 px-3 font-bold text-center w-10 whitespace-nowrap">ลาก</th>
                             <th class="py-3.5 px-3 font-bold text-center w-12 whitespace-nowrap">ลำดับ</th>
                             <th class="py-3.5 px-4 font-bold whitespace-nowrap cursor-pointer hover:bg-slate-100/90 select-none transition-colors" onclick="toggleSort('position')">
                                 <div class="flex items-center gap-1.5">
@@ -590,6 +608,7 @@
         let currentSortField = null;
         let currentSortOrder = 'asc';
         let highlightedRowId = null;
+        let draggedRowId = null;
 
         // Helper function to check if a record belongs to Main Executives
         function isMainExecutive(item) {
@@ -738,6 +757,9 @@
             filtered.forEach((item, index) => {
                 const tr = document.createElement('tr');
                 tr.id = `row-${item.id}`;
+                tr.draggable = true;
+                tr.dataset.id = item.id;
+                tr.dataset.index = index;
                 
                 const isHighlighted = (item.id === highlightedRowId);
                 const highlightClass = isHighlighted ? 'row-highlight' : '';
@@ -748,6 +770,11 @@
                 const agencyColorClass = isOffice ? 'text-emerald-700 font-bold' : 'text-slate-900 font-bold';
 
                 tr.innerHTML = `
+                    <td class="py-3 px-2 text-center whitespace-nowrap drag-handle text-slate-400 hover:text-emerald-600" title="คลิกค้างแล้วลากเพื่อจัดลำดับ">
+                        <svg class="w-4 h-4 mx-auto inline-block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16" />
+                        </svg>
+                    </td>
                     <td class="py-3 px-3 text-center font-medium text-slate-500 whitespace-nowrap">${index + 1}</td>
                     <td class="py-3 px-4 whitespace-nowrap">
                         <div class="flex items-center gap-2">
@@ -777,8 +804,92 @@
                         </div>
                     </td>
                 `;
+
+                // Attach Drag and Drop Event Listeners
+                tr.addEventListener('dragstart', handleDragStart);
+                tr.addEventListener('dragover', handleDragOver);
+                tr.addEventListener('dragleave', handleDragLeave);
+                tr.addEventListener('drop', handleDrop);
+                tr.addEventListener('dragend', handleDragEnd);
+
                 tbody.appendChild(tr);
             });
+        }
+
+        // --- Drag & Drop Handlers ---
+        function handleDragStart(e) {
+            draggedRowId = this.dataset.id;
+            this.classList.add('dragging');
+            e.dataTransfer.effectAllowed = 'move';
+            e.dataTransfer.setData('text/plain', draggedRowId);
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+            if (this.dataset.id === draggedRowId) return;
+
+            const rect = this.getBoundingClientRect();
+            const offset = e.clientY - rect.top;
+
+            // Remove visual guides from all rows
+            document.querySelectorAll('#directoryTableBody tr').forEach(r => {
+                r.classList.remove('drag-over-top', 'drag-over-bottom');
+            });
+
+            if (offset < rect.height / 2) {
+                this.classList.add('drag-over-top');
+            } else {
+                this.classList.add('drag-over-bottom');
+            }
+        }
+
+        function handleDragLeave(e) {
+            this.classList.remove('drag-over-top', 'drag-over-bottom');
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            this.classList.remove('drag-over-top', 'drag-over-bottom');
+
+            const targetRowId = this.dataset.id;
+            if (!draggedRowId || draggedRowId === targetRowId) return;
+
+            const fromIdx = directoryData.findIndex(r => r.id === draggedRowId);
+            const toIdx = directoryData.findIndex(r => r.id === targetRowId);
+
+            if (fromIdx === -1 || toIdx === -1) return;
+
+            const rect = this.getBoundingClientRect();
+            const offset = e.clientY - rect.top;
+            const insertAfter = offset >= rect.height / 2;
+
+            // Remove dragged item and insert at new position
+            const [movedItem] = directoryData.splice(fromIdx, 1);
+            let finalIdx = directoryData.findIndex(r => r.id === targetRowId);
+            if (insertAfter) finalIdx++;
+
+            directoryData.splice(finalIdx, 0, movedItem);
+
+            highlightedRowId = draggedRowId;
+
+            saveData();
+            renderTable();
+            triggerAutoSync();
+
+            setTimeout(() => {
+                highlightedRowId = null;
+                const activeEl = document.getElementById(`row-${draggedRowId}`);
+                if (activeEl) activeEl.classList.remove('row-highlight');
+            }, 800);
+        }
+
+        function handleDragEnd(e) {
+            this.classList.remove('dragging');
+            document.querySelectorAll('#directoryTableBody tr').forEach(r => {
+                r.classList.remove('drag-over-top', 'drag-over-bottom', 'dragging');
+            });
+            draggedRowId = null;
         }
 
         function renderCategoryTabs() {
